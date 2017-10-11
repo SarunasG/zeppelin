@@ -641,7 +641,7 @@ function NotebookCtrl ($scope, $route, $routeParams, $location, $rootScope,
       $scope.permissionsOrig = angular.copy($scope.permissions) // to check dirty
 
       let selectJson = {
-        tokenSeparators: [',', ' '],
+        tokenSeparators: [',', ';'],
         ajax: {
           url: function (params) {
             if (!params.term) {

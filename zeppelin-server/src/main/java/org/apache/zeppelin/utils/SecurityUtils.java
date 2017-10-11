@@ -29,6 +29,7 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
+import io.buji.pac4j.subject.Pac4jPrincipal;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.config.IniSecurityManagerFactory;
 import org.apache.shiro.mgt.SecurityManager;
@@ -103,9 +104,12 @@ public class SecurityUtils {
   private static String extractPrincipal(Subject subject) {
     String principal;
     Object principalObject = subject.getPrincipal();
-    if (principalObject instanceof Principal) {
+
+    if (principalObject instanceof Pac4jPrincipal) {
+      principal = ((Pac4jPrincipal) principalObject).getProfile().getAttribute("name").toString();
+    }  else if (principalObject instanceof Principal) {
       principal = ((Principal) principalObject).getName();
-    } else {
+    }  else {
       principal = String.valueOf(principalObject);
     }
     return principal;

@@ -24,6 +24,7 @@ function NavCtrl ($scope, $rootScope, $http, $routeParams, $location,
   vm.connected = websocketMsgSrv.isConnected()
   vm.isActive = isActive
   vm.logout = logout
+  vm.logoutOidc = logoutOidc
   vm.notes = noteListFactory
   vm.search = search
   vm.searchForm = searchService
@@ -106,6 +107,27 @@ function NavCtrl ($scope, $rootScope, $http, $routeParams, $location,
         }, 1000)
       })
     })
+  }
+
+  function logoutOidc () {
+    let logoutURL = baseUrlSrv.getRestApiBase() + '/logout/logout?url=' + baseUrlSrv.getBase()
+
+    let xmlHttp = new XMLHttpRequest()
+    xmlHttp.open('GET', logoutURL, true)// false for synchronous request
+    // xmlHttp.setRequestHeader('Cookie', $rootScope.getCookie('PLAY_SESSION'));
+    xmlHttp.send(null)
+    $rootScope.userName = ''
+    $rootScope.ticket.principal = ''
+    $rootScope.ticket.screenUsername = ''
+    $rootScope.ticket.ticket = ''
+    $rootScope.ticket.roles = ''
+
+    setTimeout(function () {
+      BootstrapDialog.show({
+        message: 'Logout Success'
+      })
+      window.location = baseUrlSrv.getBase()
+    }, 1000)
   }
 
   function search (searchTerm) {
