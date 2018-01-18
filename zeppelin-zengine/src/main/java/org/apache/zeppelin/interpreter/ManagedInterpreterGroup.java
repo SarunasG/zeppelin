@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * ManagedInterpreterGroup runs under zeppelin server
@@ -47,17 +48,36 @@ public class ManagedInterpreterGroup extends InterpreterGroup {
   ManagedInterpreterGroup(String id, InterpreterSetting interpreterSetting) {
     super(id);
     this.interpreterSetting = interpreterSetting;
+    interpreterSetting.getLifecycleManager().onInterpreterGroupCreated(this);
   }
 
   public InterpreterSetting getInterpreterSetting() {
     return interpreterSetting;
   }
 
-  public synchronized RemoteInterpreterProcess getOrCreateInterpreterProcess() throws IOException {
+  public synchronized RemoteInterpreterProcess getOrCreateInterpreterProcess(String userName,
+                                                                             Properties properties)
+      throws IOException {
     if (remoteInterpreterProcess == null) {
-      LOGGER.info("Create InterperterProcess for InterpreterGroup: " + getId());
-      remoteInterpreterProcess = interpreterSetting.createInterpreterProcess();
+      LOGGER.info("Create InterpreterProcess for InterpreterGroup: " + getId());
+      remoteInterpreterProcess = interpreterSetting.createInterpreterProcess(id, userName,
+          properties);
+      synchronized (remoteInterpreterProcess) {
+        if (!remoteInterpreterProcess.isRunning()) {
+          remoteInterpreterProcess.start(userName);
+          remoteInterpreterProcess.getRemoteInterpreterEventPoller()
+              .setInterpreterProcess(remoteInterpreterProcess);
+          remoteInterpreterProcess.getRemoteInterpreterEventPoller().setInterpreterGroup(this);
+          remoteInterpreterProcess.getRemoteInterpreterEventPoller().start();
+          getInterpreterSetting().getRecoveryStorage()
+              .onInterpreterClientStart(remoteInterpreterProcess);
+        }
+      }
     }
+    return remoteInterpreterProcess;
+  }
+
+  public RemoteInterpreterProcess getInterpreterProcess() {
     return remoteInterpreterProcess;
   }
 
@@ -81,15 +101,21 @@ public class ManagedInterpreterGroup extends InterpreterGroup {
    * @param sessionId
    */
   public synchronized void close(String sessionId) {
-    LOGGER.info("Close Session: " + sessionId);
+    LOGGER.info("Close Session: " + sessionId + " for interpreter setting: " +
+        interpreterSetting.getName());
     close(sessions.remove(sessionId));
     //TODO(zjffdu) whether close InterpreterGroup if there's no session left in Zeppelin Server
     if (sessions.isEmpty() && interpreterSetting != null) {
       LOGGER.info("Remove this InterpreterGroup: {} as all the sessions are closed", id);
       interpreterSetting.removeInterpreterGroup(id);
       if (remoteInterpreterProcess != null) {
-        LOGGER.info("Kill RemoteIntetrpreterProcess");
+        LOGGER.info("Kill RemoteInterpreterProcess");
         remoteInterpreterProcess.stop();
+        try {
+          interpreterSetting.getRecoveryStorage().onInterpreterClientStop(remoteInterpreterProcess);
+        } catch (IOException e) {
+          LOGGER.error("Fail to store recovery data", e);
+        }
         remoteInterpreterProcess = null;
       }
     }
@@ -129,13 +155,15 @@ public class ManagedInterpreterGroup extends InterpreterGroup {
     if (sessions.containsKey(sessionId)) {
       return sessions.get(sessionId);
     } else {
-      List<Interpreter> interpreters = interpreterSetting.createInterpreters(user, sessionId);
+      List<Interpreter> interpreters = interpreterSetting.createInterpreters(user, id, sessionId);
       for (Interpreter interpreter : interpreters) {
         interpreter.setInterpreterGroup(this);
       }
       LOGGER.info("Create Session: {} in InterpreterGroup: {} for user: {}", sessionId, id, user);
+      interpreterSetting.getLifecycleManager().onInterpreterSessionCreated(this, sessionId);
       sessions.put(sessionId, interpreters);
       return interpreters;
     }
   }
+
 }

@@ -162,7 +162,7 @@ public class IPySparkInterpreterTest {
     // completions
     List<InterpreterCompletion> completions = iPySparkInterpreter.completion("sc.ran", 6, getInterpreterContext());
     assertEquals(1, completions.size());
-    assertEquals("sc.range", completions.get(0).getValue());
+    assertEquals("range", completions.get(0).getValue());
 
     // pyspark streaming
     context = getInterpreterContext();
@@ -196,6 +196,7 @@ public class IPySparkInterpreterTest {
         "paragraphText",
         new AuthenticationInfo(),
         new HashMap<String, Object>(),
+        new GUI(),
         new GUI(),
         null,
         null,

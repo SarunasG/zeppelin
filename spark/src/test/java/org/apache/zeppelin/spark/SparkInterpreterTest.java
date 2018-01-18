@@ -109,6 +109,7 @@ public class SparkInterpreterTest {
         new AuthenticationInfo(),
         new HashMap<String, Object>(),
         new GUI(),
+        new GUI(),
         new AngularObjectRegistry(intpGroup.getId(), null),
         new LocalResourcePool("id"),
         new LinkedList<InterpreterContextRunner>(),
@@ -335,6 +336,7 @@ public class SparkInterpreterTest {
         new AuthenticationInfo(),
         new HashMap<String, Object>(),
         new GUI(),
+        new GUI(),
         new AngularObjectRegistry(intpGroup.getId(), null),
         new LocalResourcePool("id"),
         new LinkedList<InterpreterContextRunner>(),
@@ -347,7 +349,7 @@ public class SparkInterpreterTest {
     }
     String sparkUIUrl = repl.getSparkUIUrl();
     assertNotNull(jobUrl);
-    assertTrue(jobUrl.startsWith(sparkUIUrl + "/jobs/job?id="));
+    assertTrue(jobUrl.startsWith(sparkUIUrl + "/jobs/job/?id="));
 
   }
 }

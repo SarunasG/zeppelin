@@ -20,6 +20,8 @@ package org.apache.zeppelin.interpreter.remote;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.zeppelin.display.AngularObjectRegistry;
 import org.apache.zeppelin.display.GUI;
+import org.apache.zeppelin.display.Input;
+import org.apache.zeppelin.display.ui.OptionInput;
 import org.apache.zeppelin.interpreter.*;
 import org.apache.zeppelin.interpreter.InterpreterResult.Code;
 import org.apache.zeppelin.interpreter.remote.mock.GetAngularObjectSizeInterpreter;
@@ -32,11 +34,11 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
 
 public class RemoteInterpreterTest {
 
@@ -92,7 +94,7 @@ public class RemoteInterpreterTest {
     RemoteInterpreter remoteInterpreter2 = (RemoteInterpreter) interpreter2;
 
     InterpreterContext context1 = new InterpreterContext("noteId", "paragraphId", "repl",
-        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(),
+        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(), new GUI(),
         null, null, new ArrayList<InterpreterContextRunner>(), null);
     assertEquals("hello", remoteInterpreter1.interpret("hello", context1).message().get(0).getData());
     assertEquals(Interpreter.FormType.NATIVE, interpreter1.getFormType());
@@ -135,7 +137,7 @@ public class RemoteInterpreterTest {
     RemoteInterpreter remoteInterpreter2 = (RemoteInterpreter) interpreter2;
 
     InterpreterContext context1 = new InterpreterContext("noteId", "paragraphId", "repl",
-        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(),
+        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(), new GUI(),
         null, null, new ArrayList<InterpreterContextRunner>(), null);
     assertEquals("hello", remoteInterpreter1.interpret("hello", context1).message().get(0).getData());
     assertEquals("hello", remoteInterpreter2.interpret("hello", context1).message().get(0).getData());
@@ -181,7 +183,7 @@ public class RemoteInterpreterTest {
     RemoteInterpreter remoteInterpreter2 = (RemoteInterpreter) interpreter2;
 
     InterpreterContext context1 = new InterpreterContext("noteId", "paragraphId", "repl",
-        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(),
+        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(), new GUI(),
         null, null, new ArrayList<InterpreterContextRunner>(), null);
     assertEquals("hello", remoteInterpreter1.interpret("hello", context1).message().get(0).getData());
     assertEquals("hello", remoteInterpreter2.interpret("hello", context1).message().get(0).getData());
@@ -222,7 +224,7 @@ public class RemoteInterpreterTest {
     interpreterSetting.setProperty("zeppelin.SleepInterpreter.precode", "fail test");
     Interpreter interpreter1 = interpreterSetting.getInterpreter("user1", "note1", "sleep");
     InterpreterContext context1 = new InterpreterContext("noteId", "paragraphId", "repl",
-        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(),
+        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(), new GUI(),
         null, null, new ArrayList<InterpreterContextRunner>(), null);
     assertEquals(Code.ERROR, interpreter1.interpret("10", context1).code());
   }
@@ -233,7 +235,7 @@ public class RemoteInterpreterTest {
     interpreterSetting.setProperty("zeppelin.SleepInterpreter.precode", "1");
     Interpreter interpreter1 = interpreterSetting.getInterpreter("user1", "note1", "sleep");
     InterpreterContext context1 = new InterpreterContext("noteId", "paragraphId", "repl",
-        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(),
+        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(), new GUI(),
         null, null, new ArrayList<InterpreterContextRunner>(), null);
     assertEquals(Code.SUCCESS, interpreter1.interpret("10", context1).code());
   }
@@ -248,7 +250,7 @@ public class RemoteInterpreterTest {
     RemoteInterpreter remoteInterpreter1 = (RemoteInterpreter) interpreter1;
 
     InterpreterContext context1 = new InterpreterContext("noteId", "paragraphId", "repl",
-        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(),
+        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(), new GUI(),
         null, null, new ArrayList<InterpreterContextRunner>(), null);
     assertEquals(Code.ERROR, remoteInterpreter1.interpret("hello", context1).code());
   }
@@ -260,7 +262,7 @@ public class RemoteInterpreterTest {
 
     final Interpreter interpreter1 = interpreterSetting.getInterpreter("user1", "note1", "sleep");
     final InterpreterContext context1 = new InterpreterContext("noteId", "paragraphId", "repl",
-        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(),
+        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(), new GUI(),
         null, null, new ArrayList<InterpreterContextRunner>(), null);
     // run this dummy interpret method first to launch the RemoteInterpreterProcess to avoid the
     // time overhead of launching the process.
@@ -303,7 +305,7 @@ public class RemoteInterpreterTest {
 
     final Interpreter interpreter1 = interpreterSetting.getInterpreter("user1", "note1", "sleep");
     final InterpreterContext context1 = new InterpreterContext("noteId", "paragraphId", "repl",
-        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(),
+        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(), new GUI(),
         null, null, new ArrayList<InterpreterContextRunner>(), null);
 
     // run this dummy interpret method first to launch the RemoteInterpreterProcess to avoid the
@@ -376,7 +378,7 @@ public class RemoteInterpreterTest {
     interpreter.getInterpreterGroup().setAngularObjectRegistry(registry);
 
     final InterpreterContext context = new InterpreterContext("noteId", "paragraphId", "repl",
-        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(),
+        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(), new GUI(),
         null, null, new ArrayList<InterpreterContextRunner>(), null);
 
     InterpreterResult result = interpreter.interpret("dummy", context);
@@ -403,7 +405,7 @@ public class RemoteInterpreterTest {
 
     final Interpreter interpreter1 = interpreterSetting.getInterpreter("user1", "note1", "get");
     final InterpreterContext context1 = new InterpreterContext("noteId", "paragraphId", "repl",
-        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(),
+        "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(), new GUI(),
         null, null, new ArrayList<InterpreterContextRunner>(), null);
 
     assertEquals("VALUE_1", interpreter1.interpret("getEnv ENV_1", context1).message().get(0).getData());
@@ -411,6 +413,29 @@ public class RemoteInterpreterTest {
 
     assertEquals("value_1", interpreter1.interpret("getProperty property_1", context1).message().get(0).getData());
     assertEquals("null", interpreter1.interpret("getProperty property_2", context1).message().get(0).getData());
+  }
+
+  @Test
+  public void testConvertDynamicForms() throws InterpreterException {
+    GUI gui = new GUI();
+    OptionInput.ParamOption[] paramOptions = {
+        new OptionInput.ParamOption("value1", "param1"),
+        new OptionInput.ParamOption("value2", "param2")
+    };
+    List<Object> defaultValues = new ArrayList();
+    defaultValues.add("default1");
+    defaultValues.add("default2");
+    gui.checkbox("checkbox_id", defaultValues, paramOptions);
+    gui.select("select_id", "default", paramOptions);
+    gui.textbox("textbox_id");
+    Map<String, Input> expected = new LinkedHashMap<>(gui.getForms());
+    Interpreter interpreter = interpreterSetting.getDefaultInterpreter("user1", "note1");
+    InterpreterContext context = new InterpreterContext("noteId", "paragraphId", "repl", null,
+        null, AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), gui, new GUI(),
+        null, null, new ArrayList<InterpreterContextRunner>(), null);
+
+    interpreter.interpret("text", context);
+    assertArrayEquals(expected.values().toArray(), gui.getForms().values().toArray());
   }
 
 }

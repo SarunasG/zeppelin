@@ -18,12 +18,11 @@
 package org.apache.zeppelin.interpreter.launcher;
 
 import org.apache.zeppelin.conf.ZeppelinConfiguration;
-import org.apache.zeppelin.interpreter.InterpreterContext;
 import org.apache.zeppelin.interpreter.InterpreterOption;
 import org.apache.zeppelin.interpreter.remote.RemoteInterpreterManagedProcess;
-import org.apache.zeppelin.interpreter.remote.RemoteInterpreterProcess;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -32,23 +31,25 @@ import static org.junit.Assert.assertTrue;
 public class ShellScriptLauncherTest {
 
   @Test
-  public void testLauncher() {
+  public void testLauncher() throws IOException {
     ZeppelinConfiguration zConf = new ZeppelinConfiguration();
-    ShellScriptLauncher launcher = new ShellScriptLauncher(zConf);
+    ShellScriptLauncher launcher = new ShellScriptLauncher(zConf, null);
     Properties properties = new Properties();
     properties.setProperty("ENV_1", "VALUE_1");
     properties.setProperty("property_1", "value_1");
     InterpreterOption option = new InterpreterOption();
-    InterpreterLaunchContext context = new InterpreterLaunchContext(properties, option, null, "groupId", "groupName");
+    option.setUserImpersonate(true);
+    InterpreterLaunchContext context = new InterpreterLaunchContext(properties, option, null, "user1", "intpGroupId", "groupId", "groupName", "name");
     InterpreterClient client = launcher.launch(context);
     assertTrue( client instanceof RemoteInterpreterManagedProcess);
     RemoteInterpreterManagedProcess interpreterProcess = (RemoteInterpreterManagedProcess) client;
-    assertEquals("groupName", interpreterProcess.getInterpreterGroupName());
+    assertEquals("name", interpreterProcess.getInterpreterSettingName());
     assertEquals(".//interpreter/groupName", interpreterProcess.getInterpreterDir());
     assertEquals(".//local-repo/groupId", interpreterProcess.getLocalRepoDir());
     assertEquals(zConf.getInterpreterRemoteRunnerPath(), interpreterProcess.getInterpreterRunner());
     assertEquals(1, interpreterProcess.getEnv().size());
     assertEquals("VALUE_1", interpreterProcess.getEnv().get("ENV_1"));
+    assertEquals(true, interpreterProcess.isUserImpersonated());
   }
 
 }
