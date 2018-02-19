@@ -46,15 +46,17 @@
         <plugin.scala.version>2.15.2</plugin.scala.version>
         <!-- spark versions -->
 
-        <spark.version>2.2.0</spark.version>
+        <spark.version>2.2.1</spark.version>
         <py4j.version>0.10.4</py4j.version>
 
-        <spark.archive>spark-${spark.version}</spark.archive>
+        <spark.archive>spark-2.2.1-bin-hadoop2.7</spark.archive>
         <spark.src.download.url>
-            http://d3kbcqa49mib13.cloudfront.net/${spark.archive}.tgz
+            <!-- http://d3kbcqa49mib13.cloudfront.net/${spark.archive}.tgz -->
+            http://www-eu.apache.org/dist/spark/spark-2.2.1/spark-2.2.1-bin-hadoop2.7.tgz
         </spark.src.download.url>
         <spark.bin.download.url>
-            http://d3kbcqa49mib13.cloudfront.net/${spark.archive}-bin-without-hadoop.tgz
+            <!-- http://d3kbcqa49mib13.cloudfront.net/${spark.archive}-bin-without-hadoop.tgz -->
+            http://www-eu.apache.org/dist/spark/spark-2.2.1/spark-2.2.1-bin-hadoop2.7.tgz
         </spark.bin.download.url>
     </properties>
 
@@ -226,7 +228,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <spark.version>2.2.0</spark.version>
+                <spark.version>2.2.1</spark.version>
                 <py4j.version>0.10.4</py4j.version>
             </properties>
         </profile>
